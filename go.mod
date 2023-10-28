@@ -1,4 +1,4 @@
-module main
+module stuburger.com/fib
 
 go 1.19
 
