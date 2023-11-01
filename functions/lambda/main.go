@@ -55,10 +55,10 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 }
 
 type Response struct {
-	Value int `json:"value"`
+	Value uint64 `json:"value"`
 }
 
-func ok(value int) events.APIGatewayProxyResponse {
+func ok(value uint64) events.APIGatewayProxyResponse {
 	ret := &Response{
 		Value: value,
 	}

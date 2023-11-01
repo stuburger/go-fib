@@ -1,6 +1,6 @@
 import { SSTConfig } from "sst";
-import { RemovalPolicy } from "aws-cdk-lib";
-import { Api, Script, Table, Function } from "sst/constructs";
+import { Duration, RemovalPolicy } from "aws-cdk-lib";
+import { Api, Script, Table, Function, Service } from "sst/constructs";
 
 export default {
   config(_input) {
@@ -31,6 +31,7 @@ export default {
       const handler = new Function(stack, "Function", {
         handler: "functions/lambda/main.go",
         bind: [table],
+        architecture: "arm_64",
         environment: {
           COUNTER_TABLE_NAME: table.tableName,
         },
@@ -54,8 +55,42 @@ export default {
         }),
       });
 
+      const service = new Service(stack, "FibonacciService", {
+        path: ".",
+        port: 8080,
+        architecture: "arm64",
+        bind: [table],
+        environment: {
+          COUNTER_TABLE_NAME: table.tableName,
+        },
+        scaling: {
+          maxContainers: 5,
+          minContainers: 5,
+        },
+        cdk: {
+          applicationLoadBalancerTargetGroup: {
+            healthCheck: {
+              path: "/health",
+            },
+          },
+          container: {
+            healthCheck: {
+              command: [
+                "CMD-SHELL",
+                "curl -f http://localhost:8080/health || exit 1",
+              ],
+              interval: Duration.seconds(30),
+              retries: 1,
+              startPeriod: Duration.seconds(30),
+              timeout: Duration.seconds(30),
+            },
+          },
+        },
+      });
+
       stack.addOutputs({
-        ApiEndpoint: api.url,
+        ServerlessApiEndpoint: api.url,
+        ContainerApiEndpoint: service.url,
       });
     });
   },

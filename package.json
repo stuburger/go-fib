@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "server": "sst bind \"env | grep SST_ > .env.tmp && docker run --env-file .env.tmp my-image\"",
     "dev": "sst dev",
     "build": "sst build",
     "deploy": "sst deploy",

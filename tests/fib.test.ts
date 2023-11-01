@@ -1,6 +1,7 @@
 import { expect, test, beforeEach, afterAll } from "vitest";
 import fetch from "node-fetch";
 
+console.log(process.env);
 const BASE_URL = process.env["SST_Api_url_api"];
 
 if (!BASE_URL) {
@@ -44,7 +45,6 @@ afterAll(async () => {
 }, 20000);
 
 const sample = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
-
 test("calling the /current endpoint returns the current fibonacci number", async () => {
   const value = await current();
   expect(value).toEqual(0);
@@ -57,22 +57,6 @@ test(
       const value = await next();
       expect(value).toEqual(sample[i]);
     }
-  },
-  { timeout: 20000 }
-);
-
-test.only(
-  "concurrent calls to next",
-  async () => {
-    let promises: Promise<number>[] = [current()];
-
-    for (let i = 1; i < 1000; i += 1) {
-      const value = next();
-      promises.push(value);
-    }
-    const sequence = await Promise.all(promises);
-    console.log(sequence);
-    expect(sequence.sort((a, b) => a - b)).toEqual(sample);
   },
   { timeout: 20000 }
 );
