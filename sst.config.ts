@@ -1,6 +1,13 @@
 import { SSTConfig } from "sst";
 import { Duration, RemovalPolicy } from "aws-cdk-lib";
-import { Api, Script, Table, Function, Service } from "sst/constructs";
+import {
+  StaticSite,
+  Api,
+  Script,
+  Table,
+  Function,
+  Service,
+} from "sst/constructs";
 
 export default {
   config(_input) {
@@ -88,9 +95,20 @@ export default {
         },
       });
 
+      const site = new StaticSite(stack, "ReactSite", {
+        path: "packages/website",
+        buildCommand: "pnpm run build",
+        buildOutput: "build",
+        environment: {
+          REACT_APP_SERVERLESS_API_URL: api.url,
+          REACT_APP_CONTAINER_API_URL: service.url!,
+        },
+      });
+
       stack.addOutputs({
         ServerlessApiEndpoint: api.url,
         ContainerApiEndpoint: service.url,
+        WebsiteUrl: site.url,
       });
     });
   },
