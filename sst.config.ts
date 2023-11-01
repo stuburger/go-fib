@@ -7,7 +7,12 @@ import {
   Table,
   Function,
   Service,
+  use,
 } from "sst/constructs";
+import { Storage } from "./stacks/storage";
+import { ApiGateway } from "./stacks/api-gateway";
+import { Website } from "./stacks/website";
+import { Ecs } from "./stacks/ecs";
 
 export default {
   config(_input) {
@@ -22,94 +27,10 @@ export default {
     });
 
     app.stack(function Stack({ stack }) {
-      const table = new Table(stack, "Table", {
-        fields: {
-          counter: "string",
-        },
-        primaryIndex: { partitionKey: "counter" },
-        cdk: {
-          table: {
-            // Don't worry about keeping this table around for this toy api
-            removalPolicy: RemovalPolicy.DESTROY,
-          },
-        },
-      });
-
-      const handler = new Function(stack, "Function", {
-        handler: "functions/lambda/main.go",
-        bind: [table],
-        architecture: "arm_64",
-        environment: {
-          COUNTER_TABLE_NAME: table.tableName,
-        },
-      });
-
-      const api = new Api(stack, "api", {
-        routes: {
-          // use a single handler matches all routes, i.e. /current, /previous and /next
-          "GET /{proxy+}": handler,
-        },
-      });
-
-      new Script(stack, "Script", {
-        onCreate: new Function(stack, "ScriptFn", {
-          enableLiveDev: false,
-          handler: "functions/script/seed.go",
-          bind: [table],
-          environment: {
-            COUNTER_TABLE_NAME: table.tableName,
-          },
-        }),
-      });
-
-      const service = new Service(stack, "FibonacciService", {
-        path: ".",
-        port: 8080,
-        architecture: "arm64",
-        bind: [table],
-        environment: {
-          COUNTER_TABLE_NAME: table.tableName,
-        },
-        scaling: {
-          maxContainers: 5,
-          minContainers: 5,
-        },
-        cdk: {
-          applicationLoadBalancerTargetGroup: {
-            healthCheck: {
-              path: "/health",
-            },
-          },
-          container: {
-            healthCheck: {
-              command: [
-                "CMD-SHELL",
-                "curl -f http://localhost:8080/health || exit 1",
-              ],
-              interval: Duration.seconds(30),
-              retries: 1,
-              startPeriod: Duration.seconds(30),
-              timeout: Duration.seconds(30),
-            },
-          },
-        },
-      });
-
-      const site = new StaticSite(stack, "ReactSite", {
-        path: "packages/website",
-        buildCommand: "pnpm run build",
-        buildOutput: "build",
-        environment: {
-          REACT_APP_SERVERLESS_API_URL: api.url,
-          REACT_APP_CONTAINER_API_URL: service.url!,
-        },
-      });
-
-      stack.addOutputs({
-        ServerlessApiEndpoint: api.url,
-        ContainerApiEndpoint: service.url,
-        WebsiteUrl: site.url,
-      });
+      app.stack(Storage); // Storage must be used first
+      app.stack(ApiGateway); // Depends on Storage stack
+      app.stack(Ecs); // Depends on Storage stack
+      app.stack(Website); // Deploy last - depends on all of the above
     });
   },
 } satisfies SSTConfig;
