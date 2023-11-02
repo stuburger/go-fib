@@ -8,7 +8,7 @@ export let options = {
 };
 
 export default function () {
-  let response = http.get(__ENV.SST_Service_url_FibonacciService + "/next"); // Send a GET request to the specified endpoint
+  let response = http.post(__ENV.SST_Service_url_FibonacciService + "/next"); // Send a POST request to the specified endpoint
   check(response, {
     "status is 200": (r) => r.status === 200, // Check if the response status is 200 OK
   });

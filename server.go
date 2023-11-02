@@ -1,3 +1,10 @@
+/*
+A minimal HTTP server that responds to requests to /current, /next, /previous and /reset.
+
+Note: that I am not differentiating between HTTP methods such as POST and GET.
+If the request matches the correct path then we'll just handle it, regardless of http verbiage.
+In a production api, we'd take the time to return 404s if the method and route are not matched.
+*/
 package main
 
 import (
@@ -16,6 +23,7 @@ func setHeaders(w *http.ResponseWriter) {
 }
 
 func main() {
+
 	http.HandleFunc("/current", func(w http.ResponseWriter, r *http.Request) {
 		setHeaders(&w)
 

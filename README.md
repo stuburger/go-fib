@@ -77,6 +77,28 @@ Run the load tests:
 $ pnpm run load-test --stage pex
 ```
 
+## Does this solution meet the requirements?
+
+- **The API must be able to handle high throughput (~1k requests per second)** ✅
+
+  Feel free to play with the auto scaling configuration in the [ecs stack](./stacks/ecs.ts) (current its hard coded to one task in the deployed example)
+
+- **The API should also be able to recover and restart if it unexpectedly crashes** ✅
+
+  The auto scaling cluster will restart tasks if health checks start failing.
+
+- **Use React, HTML, and any CSS preprocessor of your choice for the frontend** ✅
+
+  I opted to keep the frontend very bare bones. Just vanilla CSS + React. I use react-query for making http calls.
+
+- **Use Go and any framework of your choice for the backend** ✅
+
+  No framework other than the standard library and some aws sdks. Of course SST is in the mix there too which blurs the lines between IaC and backend framework!
+
+- **The submission should be sent in a GitHub repo** ✅
+
+  This is it!
+
 ## Quick tour of the code
 
 ### Infrastructure
@@ -95,10 +117,6 @@ See [fib.go](./fib/fib.go) for the implementation.
 Both backends pre-populate the fibonacci numbers to the 50th element. I chose that number arbitrarily and in fact this pre caching solution doesn't actually seem to give much benefit once I moved to a serverful approach. I've left it in there as a small optimization, however.
 
 The algorithm also uses a dynamic programming approach instead of a recursive approach which is much faster.
-
-Assumptions:
-
-- You're not going to hit the /previous endpoint to drive the counter into negative numbers doing so will simply return an error.
 
 ### Persistence
 

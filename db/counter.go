@@ -54,6 +54,20 @@ func GetCurrentCounterValue(ctx context.Context) (int, error) {
 }
 
 func IncrementCounter(ctx context.Context, amount int) (int, error) {
+
+	// prevent the counter from going negative
+	if amount < 0 {
+		val, err := GetCurrentCounterValue(ctx)
+
+		if err != nil {
+			return 0, err
+		}
+
+		if val+amount < 0 {
+			return 0, fmt.Errorf("error updating counter. counter must always be >= 0")
+		}
+	}
+
 	tableName := os.Getenv("COUNTER_TABLE_NAME")
 	key := map[string]types.AttributeValue{
 		"counter": &types.AttributeValueMemberS{
