@@ -1,4 +1,5 @@
 import { useState } from "react";
+import numeral from "numeral";
 import reactLogo from "./assets/react.svg";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import viteLogo from "/vite.svg";
@@ -129,7 +130,7 @@ function App() {
         <button onClick={() => inc.mutate()}>Next</button>
         <button onClick={() => reset.mutate()}>Reset</button>
       </div>
-      <p className="read-the-docs">{count}</p>
+      <p className="read-the-docs">{numeral(count).format("0,0")}</p>
     </>
   );
 }

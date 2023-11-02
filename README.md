@@ -1,6 +1,6 @@
 # Fullstack Fibonacci coding challenge
 
-This repository contains my solution to the [fibonacci coding challenge](https://gist.github.com/stepanbujnak/7fa18e2e97de2fd3f593c00b09c445c2). It is build the following stack:
+This repository contains my solution to the [fibonacci coding challenge](https://gist.github.com/stepanbujnak/7fa18e2e97de2fd3f593c00b09c445c2). It is built the following stack:
 
 - AWS CDK and [SST](https://sst.dev/) for Infrastructure as Code
 - Go for the backend.
@@ -9,7 +9,7 @@ This repository contains my solution to the [fibonacci coding challenge](https:/
 
 Note that there are actually 2 implemented backends. There is a serverless approach as well as a container based approach. The former deploys a single lambda function fronted by an API gateway and the latter deploys a simple http server to AWS ECS fronted by a cloudfront distribution.
 
-The reason I ended up with multiple backends is because in testing the lambda approach didn't always meet the ~1000 request/second throughput requirement. This was due to the fact that cold starts would occasionally mean cache misses and for large numbers of n requests would take a bit longer. See my commit messages for more information. Leaving in the serverless version costs me nothing and it might be interesting to you to see how it was done.
+The reason I ended up with multiple backends is because in testing the lambda approach didn't always meet the ~1000 request/second throughput requirement. Leaving in the serverless version costs me nothing and it might be interesting to you to see how it was done.
 
 Both backends use the same Dynamodb table for persistence. Both APIs support the same http routes:
 
@@ -20,7 +20,7 @@ Both backends use the same Dynamodb table for persistence. Both APIs support the
 
 ## Demo
 
-- Website is deployed [here](https://d22iwr85mk90es.cloudfront.net/)
+- Website is deployed to [https://pex.stuburger.com/](https://pex.stuburger.com/)
 - Serverless backend is accessible from [https://1i3560emy0.execute-api.us-east-1.amazonaws.com](https://d22iwr85mk90es.cloudfront.net/)
 - Containerized backend is accessible from: [https://d2b3eagqriav7g.cloudfront.net](https://d2b3eagqriav7g.cloudfront.net)
 
@@ -124,3 +124,5 @@ I have chosen to leave it bare bones for this challenge. It does not make use of
 I chose SST because makes it very easy to create a deploy cloudformation stacks. It is built on top of AWS CDK and make its trivial to build serverless applications in particular. It also provides the means to move entirely away from storing environment variables in config files which are often need to store secrets and are at risk of being committed to version control.
 
 When you run the api tests or load tests, notice that those tests do not pull in any configuration from local files. It is all done using `sst bind` which binds the apps resources to a command and brings those variables into the environment. Magic!
+
+It is also possible to reuse the same CDN for the website and the backend by pointing it at different origins, but thats been left for part 2 :)
