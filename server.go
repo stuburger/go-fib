@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,11 +9,17 @@ import (
 	"stuburger.com/fib/fib"
 )
 
+func setHeaders(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+}
+
 func main() {
 	http.HandleFunc("/current", func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.TODO()
+		setHeaders(&w)
 
-		counterValue, err := db.GetCurrentCounterValue(ctx)
+		counterValue, err := db.GetCurrentCounterValue(r.Context())
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -40,6 +45,8 @@ func main() {
 	})
 
 	http.HandleFunc("/next", func(w http.ResponseWriter, r *http.Request) {
+		setHeaders(&w)
+
 		counterValue, err := db.IncrementCounter(r.Context(), 1)
 
 		if err != nil {
@@ -66,7 +73,8 @@ func main() {
 	})
 
 	http.HandleFunc("/previous", func(w http.ResponseWriter, r *http.Request) {
-		counterValue, err := db.GetCurrentCounterValue(r.Context())
+		setHeaders(&w)
+		counterValue, err := db.IncrementCounter(r.Context(), -1)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -92,6 +100,7 @@ func main() {
 	})
 
 	http.HandleFunc("/reset", func(w http.ResponseWriter, r *http.Request) {
+		setHeaders(&w)
 		counterValue, err := db.ResetCounter(r.Context())
 
 		if err != nil {

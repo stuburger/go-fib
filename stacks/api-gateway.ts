@@ -16,7 +16,10 @@ export function ApiGateway({ stack, app }: StackContext) {
   const api = new Api(stack, "api", {
     routes: {
       // use a single handler matches all routes, i.e. /current, /previous and /next
-      "GET /{proxy+}": handler,
+      "GET /current": handler,
+      "POST /next": handler,
+      "POST /previous": handler,
+      "POST /reset": handler,
     },
   });
 

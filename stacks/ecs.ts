@@ -11,12 +11,16 @@ export function Ecs({ stack }: StackContext) {
     port: 8080,
     architecture: "arm64",
     bind: [table],
+    dev: {
+      // url: "http://localhost:8080",
+      deploy: true,
+    },
     environment: {
       COUNTER_TABLE_NAME: table.tableName,
     },
     scaling: {
-      maxContainers: 5,
-      minContainers: 5,
+      maxContainers: 1, // increase these numbers if you want higher throughput
+      minContainers: 1,
     },
     cdk: {
       applicationLoadBalancerTargetGroup: {

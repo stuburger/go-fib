@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "server": "sst bind \"env | grep SST_ > .env.tmp && docker run --env-file .env.tmp my-image\"",
+    "server": "sst bind \"env | grep -e AWS_ -e SST_ > .env.tmp && docker run -p 8080:8080 --env-file .env.tmp sst-build:service-FibonacciService\"",
     "dev": "sst dev",
     "build": "sst build",
     "deploy": "sst deploy",
     "remove": "sst remove",
     "console": "sst console",
-    "test": "sst bind vitest",
-    "typecheck": "tsc --noEmit"
+    "test": "sst bind --script vitest run",
+    "typecheck": "tsc --noEmit",
+    "load-test": "sst bind --script k6 run tests/loadtest.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",

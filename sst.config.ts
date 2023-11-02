@@ -1,14 +1,4 @@
 import { SSTConfig } from "sst";
-import { Duration, RemovalPolicy } from "aws-cdk-lib";
-import {
-  StaticSite,
-  Api,
-  Script,
-  Table,
-  Function,
-  Service,
-  use,
-} from "sst/constructs";
 import { Storage } from "./stacks/storage";
 import { ApiGateway } from "./stacks/api-gateway";
 import { Website } from "./stacks/website";

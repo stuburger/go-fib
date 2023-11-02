@@ -1,8 +1,8 @@
-import { expect, test, beforeEach, afterAll } from "vitest";
+import { expect, test, beforeAll, afterAll, describe } from "vitest";
+import { Service } from "sst/node/service";
 import fetch from "node-fetch";
 
-console.log(process.env);
-const BASE_URL = process.env["SST_Api_url_api"];
+const BASE_URL = (Service as any).FibonacciService.url;
 
 if (!BASE_URL) {
   throw new Error("API URL not present in environment");
@@ -36,32 +36,43 @@ async function next(): Promise<number> {
   return value;
 }
 
-beforeEach(async () => {
+beforeAll(async () => {
   await reset();
-}, 20000);
+});
 
 afterAll(async () => {
   await reset();
-}, 20000);
+});
 
-const sample = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
+const sequence = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
+
 test("calling the /current endpoint returns the current fibonacci number", async () => {
   const value = await current();
   expect(value).toEqual(0);
 });
 
-test(
-  "calling the /next endpoint returns the next fibonacci number",
-  async () => {
-    for (let i = 1; i < sample.length; i += 1) {
-      const value = await next();
-      expect(value).toEqual(sample[i]);
-    }
-  },
-  { timeout: 20000 }
-);
+describe("next and previous", () => {
+  test(
+    "calling the /next endpoint returns the next fibonacci number",
+    async () => {
+      // start at the second number in the sequence since we're starting with an call to /next
+      for (let i = 1; i < sequence.length; i += 1) {
+        const value = await next();
+        expect(value).toEqual(sequence[i]);
+      }
+    },
+    { timeout: 20000 }
+  );
 
-test.skip("calling the /previous endpoint returns the previous fibonacci number", async () => {
-  const value = await next();
-  expect(value).toEqual(0);
+  test(
+    "calling the /previous endpoint returns the previous fibonacci number",
+    async () => {
+      // start at the second to last number in the sequence since we're starting with a call to /previous
+      for (let i = sequence.length - 2; i >= 1; i -= 1) {
+        const value = await previous();
+        expect(value).toEqual(sequence[i]);
+      }
+    },
+    { timeout: 20000 }
+  );
 });
